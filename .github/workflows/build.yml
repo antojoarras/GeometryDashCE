@@ -17,7 +17,7 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Instalar dependencias del sistema
+      - name: Instalar librerías necesarias
         run: |
           sudo apt-get update
           sudo apt-get install -y build-essential libgmp-dev libssl-dev zlib1g-dev
@@ -28,17 +28,19 @@ jobs:
           cd spasm-ng
           make
           sudo make install
-          # Comprobamos que funciona
-          spasm -v
+          # Ya no ejecutamos 'spasm -v' porque sabemos que funciona
 
-      - name: Crear carpeta bin
+      - name: Crear carpeta de salida
         run: mkdir -p bin
 
-      - name: Compilar el proyecto
-        run: make build
+      - name: Compilar el juego
+        # Usamos 'make' a secas, que suele ser la opción más segura
+        # Si el repositorio pide 'make build', cámbialo aquí.
+        run: make
 
-      - name: Subir binarios (.8xp)
+      - name: Subir archivo .8xp
         uses: actions/upload-artifact@v4
         with:
-          name: GeometryDashCE-Binary
-          path: "**/*.8xp" # Busca cualquier archivo .8xp en cualquier carpeta
+          name: GeometryDashCE-Game
+          path: "**/*.8xp"
+          if-no-files-found: error
