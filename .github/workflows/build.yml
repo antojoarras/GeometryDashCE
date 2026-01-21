@@ -1,0 +1,41 @@
+name: Compilar GeometryDashCE
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout del código
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive # Crucial para traer las librerías incluidas
+
+      - name: Instalar dependencias de compilación
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential libgmp-dev libssl-dev
+
+      - name: Descargar e instalar spasm-ng
+        run: |
+          # Descargamos la versión estable de spasm-ng para Linux
+          curl -L https://github.com/alberthdev/spasm-ng/releases/download/v0.5-beta.3/spasm-ng_0.5-beta.3_linux_amd64.tar.gz -o spasm.tar.gz
+          tar -xzf spasm.tar.gz
+          # Lo movemos a /usr/local/bin para que el Makefile lo encuentre como 'spasm'
+          sudo mv spasm-ng /usr/local/bin/spasm
+          chmod +x /usr/local/bin/spasm
+
+      - name: Compilar el proyecto
+        run: make build
+
+      - name: Subir binario compilado (.8xp)
+        uses: actions/upload-artifact@v4
+        with:
+          name: GeometryDashCE-Binary
+          path: bin/AGD.8xp # Esta es la ruta que indica tu README
