@@ -15,21 +15,25 @@ jobs:
       - name: Checkout del código
         uses: actions/checkout@v4
         with:
-          submodules: recursive # Crucial para traer las librerías incluidas
+          submodules: recursive
 
-      - name: Instalar dependencias de compilación
+      - name: Instalar dependencias del sistema
         run: |
           sudo apt-get update
-          sudo apt-get install -y build-essential libgmp-dev libssl-dev
+          sudo apt-get install -y build-essential libgmp-dev libssl-dev zlib1g-dev
 
-      - name: Descargar e instalar spasm-ng
+      - name: Compilar e instalar spasm-ng desde fuente
         run: |
-          # Descargamos la versión estable de spasm-ng para Linux
-          curl -L https://github.com/alberthdev/spasm-ng/releases/download/v0.5-beta.3/spasm-ng_0.5-beta.3_linux_amd64.tar.gz -o spasm.tar.gz
-          tar -xzf spasm.tar.gz
-          # Lo movemos a /usr/local/bin para que el Makefile lo encuentre como 'spasm'
-          sudo mv spasm-ng /usr/local/bin/spasm
-          chmod +x /usr/local/bin/spasm
+          git clone https://github.com/alberthdev/spasm-ng.git
+          cd spasm-ng
+          make
+          sudo make install
+          # Esto instala el binario como 'spasm-ng', 
+          # pero el Makefile suele buscar 'spasm'
+          sudo ln -s /usr/local/bin/spasm-ng /usr/local/bin/spasm
+
+      - name: Crear carpeta bin (si no existe)
+        run: mkdir -p bin
 
       - name: Compilar el proyecto
         run: make build
@@ -38,4 +42,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: GeometryDashCE-Binary
-          path: bin/AGD.8xp # Esta es la ruta que indica tu README
+          path: bin/*.8xp
