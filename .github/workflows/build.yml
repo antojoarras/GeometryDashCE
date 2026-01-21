@@ -1,4 +1,4 @@
-name: Compilar GeometryDashCE
+name: Compilar GeometryDashCE Completo
 
 on:
   push:
@@ -17,7 +17,7 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Instalar librerías necesarias
+      - name: Instalar librerías del sistema
         run: |
           sudo apt-get update
           sudo apt-get install -y build-essential libgmp-dev libssl-dev zlib1g-dev
@@ -28,19 +28,24 @@ jobs:
           cd spasm-ng
           make
           sudo make install
-          # Ya no ejecutamos 'spasm -v' porque sabemos que funciona
+          # Spasm instalado correctamente
 
       - name: Crear carpeta de salida
         run: mkdir -p bin
 
-      - name: Compilar el juego
-        # Usamos 'make' a secas, que suele ser la opción más segura
-        # Si el repositorio pide 'make build', cámbialo aquí.
+      - name: Compilar el motor del juego (AGD.8xp)
         run: make
 
-      - name: Subir archivo .8xp
+      - name: Compilar los niveles (AppVars .8xv)
+        # Según el Makefile original, el comando para los niveles es 'make levels'
+        run: make levels
+
+      - name: Subir Juego y Niveles (Artifact)
         uses: actions/upload-artifact@v4
         with:
-          name: GeometryDashCE-Game
-          path: "**/*.8xp"
+          name: GeometryDashCE-Completo
+          # Guardamos todos los archivos que empiecen por .8x (.8xp y .8xv)
+          path: |
+            bin/*.8xp
+            bin/*.8xv
           if-no-files-found: error
