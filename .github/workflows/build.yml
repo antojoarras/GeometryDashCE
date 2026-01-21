@@ -22,24 +22,23 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y build-essential libgmp-dev libssl-dev zlib1g-dev
 
-      - name: Compilar e instalar spasm-ng desde fuente
+      - name: Compilar e instalar spasm-ng
         run: |
           git clone https://github.com/alberthdev/spasm-ng.git
           cd spasm-ng
           make
           sudo make install
-          # Esto instala el binario como 'spasm-ng', 
-          # pero el Makefile suele buscar 'spasm'
-          sudo ln -s /usr/local/bin/spasm-ng /usr/local/bin/spasm
+          # Comprobamos que funciona
+          spasm -v
 
-      - name: Crear carpeta bin (si no existe)
+      - name: Crear carpeta bin
         run: mkdir -p bin
 
       - name: Compilar el proyecto
         run: make build
 
-      - name: Subir binario compilado (.8xp)
+      - name: Subir binarios (.8xp)
         uses: actions/upload-artifact@v4
         with:
           name: GeometryDashCE-Binary
-          path: bin/*.8xp
+          path: "**/*.8xp" # Busca cualquier archivo .8xp en cualquier carpeta
